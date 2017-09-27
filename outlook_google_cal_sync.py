@@ -35,7 +35,7 @@ def init():
     global datadir, SYNC_STATUS_NEW, SYNC_STATUS_EXIST_NOCHANGE, SYNC_STATUS_EXIST_CHANGED
     global bReinit
 
-    bReinit = False # set to True if you want to reinitializes google calender by deleting it first.
+    bReinit = True # set to True if you want to reinitializes google calender by deleting it first.
     SYNC_STATUS_NEW = 1
     SYNC_STATUS_EXIST_NOCHANGE = 2
     SYNC_STATUS_EXIST_CHANGED = 3
@@ -75,7 +75,6 @@ def createDB():
     except Exception as e:
         print("error : can not create Events DB")
         exit(0)
-
 def runSQL(sql):
     global db
     cursor = db.cursor()
@@ -210,8 +209,10 @@ def outlook_evt_id_to_google_evt_id(p_id):
 def outlook_dt_to_google_dt(p_dt):
 
     dt = str(p_dt).replace(" ", "T")
+    #google_dt = google_dt[0:19]
     google_dt = str(dt)
-
+    #idx = dt.rfind(":")
+    #google_dt = dt[:idx] + dt[idx+1:]
     return google_dt
 
 def createBaseGoogleEventData(outlook_event):
@@ -219,6 +220,9 @@ def createBaseGoogleEventData(outlook_event):
     g_evt_id = outlook_evt_id_to_google_evt_id(outlook_event.item_id)
     start_dt = outlook_dt_to_google_dt(outlook_event.start.astimezone(local_tz))
     end_dt = outlook_dt_to_google_dt(outlook_event.end.astimezone(local_tz))
+
+
+
 
     google_event = {
           'id' : g_evt_id,
@@ -312,7 +316,9 @@ def handleExceptions(outlook_event, google_event):
 
     global gEvtList
 
+
     gEvtList = []
+
 
     bIsFutureEventModified = False
     bIsFutureEventDeleted = False
@@ -467,7 +473,7 @@ def createGoogleEventData(outlook_event):
 
 
 def sync_Events():
-    global qs, bgoogle_event_edited
+    global qs, bgoogle_event_edited, new_cal_id
     global outlook_event_path, outlook_event_path_temp
 
     qs = outlook_account.calendar.all()
@@ -480,13 +486,17 @@ def sync_Events():
             continue
 
 
+        event = createGoogleEventData(outlook_event)
         if isSingleEvent(outlook_event):
             if not isFutureDate(outlook_event.start):
                 continue
-            elif "STATUS:CANCELLED" in str(outlook_event.mime_content):
+        if "STATUS:CANCELLED" in str(outlook_event.mime_content):
+                if sync_status == SYNC_STATUS_EXIST_CHANGED:
+                    google_service.events().delete(calendarId=new_cal_id, eventId=event['id']).execute()
                 continue
 
-        event = createGoogleEventData(outlook_event)
+
+
 
         try:
             if sync_status == SYNC_STATUS_NEW:
