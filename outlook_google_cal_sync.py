@@ -35,7 +35,7 @@ def init():
     global datadir, SYNC_STATUS_NEW, SYNC_STATUS_EXIST_NOCHANGE, SYNC_STATUS_EXIST_CHANGED
     global bReinit
 
-    bReinit = True # set to True if you want to reinitializes google calender by deleting it first.
+    bReinit = False # set to True if you want to reinitializes google calender by deleting it first.
     SYNC_STATUS_NEW = 1
     SYNC_STATUS_EXIST_NOCHANGE = 2
     SYNC_STATUS_EXIST_CHANGED = 3
