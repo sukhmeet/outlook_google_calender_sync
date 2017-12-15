@@ -387,7 +387,7 @@ def handleModifiedOccurences(outlook_event):
 
             if geventInstance != None:
                     outlook_event_instance = outlook_account.calendar.get(item_id=occ.item_id, changekey=occ.changekey)
-                    if "STATUS:CANCELLED" in str(outlook_event_instance.mime_content):
+                    if re.match("^Canceled:", str(outlook_event_instance.mime_content)):
                         google_service.events().delete(calendarId=new_cal_id, eventId=geventInstance['id']).execute()
                         bgoogle_event_edited = True
 
@@ -496,7 +496,7 @@ def sync_Events():
         if isSingleEvent(outlook_event):
             if not isFutureDate(outlook_event.start):
                 continue
-        if "STATUS:CANCELLED" in str(outlook_event.mime_content):
+        if re.match("^Canceled:", str(outlook_event.mime_content)):
                 if sync_status == SYNC_STATUS_EXIST_CHANGED:
                     google_service.events().delete(calendarId=new_cal_id, eventId=event['id']).execute()
                 continue
