@@ -25,4 +25,5 @@ Usage : Define following parameters in the init function :
   google_email
   max_fut_days_to_check = Number of days to sync events in future
   bReinit = False. Set This variable to True if you want to reinitialize ( delete and recreate calender on google ) or if there is some problem.
-             Set this to True rarely or else it may cause google usage limit to exceed due to creation of calender multiple times    
+             Set this to True rarely or else it may cause google usage limit to exceed due to creation of calender multiple times   
+  outlook_server : if blank ("") it will try to use autodiscover. Please provide a value if autodiscover  doesn't work

@@ -33,7 +33,7 @@ except ImportError:
 def init():
     global new_cal_name, tz_name, outlook_user_name, outlook_user_pass, outlook_email, google_email, new_cal_id, max_fut_days_to_check, local_tz
     global datadir, SYNC_STATUS_NEW, SYNC_STATUS_EXIST_NOCHANGE, SYNC_STATUS_EXIST_CHANGED
-    global bReinit
+    global bReinit, outlook_server
 
     bReinit = False # set to True if you want to reinitializes google calender by deleting it first.
     SYNC_STATUS_NEW = 1
@@ -48,6 +48,7 @@ def init():
     max_fut_days_to_check = 60
     local_tz = pytz.timezone(tz_name)
     datadir = "data"
+    outlook_server=""
 
     if bReinit:
         shutil.rmtree(datadir, ignore_errors=True)
@@ -102,7 +103,12 @@ def initOutlook():
     outlook_credentials = Credentials(username=outlook_user_name, password=outlook_user_pass)
 
     # Set up a target outlook_account and do an autodiscover lookup to find the target EWS endpoint:
-    outlook_account = Account(primary_smtp_address=outlook_email, credentials=outlook_credentials,
+    if outlook_server !="" :
+        config = Configuration(server=outlook_server, credentials=outlook_credentials)
+        outlook_account = Account(primary_smtp_address=outlook_email, config=config,
+                  autodiscover=False, access_type=DELEGATE)
+    else:
+        outlook_account = Account(primary_smtp_address=outlook_email, credentials=outlook_credentials,
                   autodiscover=True, access_type=DELEGATE)
 
     # If you're connecting to the same outlook_account very often, you can cache the autodiscover result for
